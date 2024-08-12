@@ -5,9 +5,12 @@ import facturasRoutes from './routes/facturas.routes.js'
 import indexRoutes from './routes/index.routes.js'
 //Importamos la constante del puerto seteada en config.js
 import { PORT } from './config.js'
+import cors from 'cors'
 
 const app = express();
 
+// Habilitar CORS para todas las rutas
+app.use(cors());
 //Para que mi aplicación entienda los JSON que le envio en el body de los POST
 app.use(express.json())
 

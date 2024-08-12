@@ -6,12 +6,14 @@ import { pool } from "../db.js";
 export const getFacturas = async (req, res) => {
   try {
     // Parámetros de paginación y fechas
-    const { page = 1, limit = 10, startDate, endDate } = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
     //Calculando el offset de desplazamiento
     const offset = (page - 1) * limit;
 
     //Consulta SQL
+    //Por motivos de agilización se tuvo que quitar la limitacion por fecha
+    //// WHERE factura.fecha BETWEEN ? AND ?
     const query = `SELECT
                         factura.nombreProducto,
                         factura.fecha,
@@ -20,12 +22,11 @@ export const getFacturas = async (req, res) => {
                         factura.total,
                         cliente.id AS idCliente,
                         cliente.nombre
-                        FROM factura JOIN cliente ON factura.idCliente = cliente.id WHERE factura.fecha BETWEEN ? AND ?
-                        LIMIT ? OFFSET ?;`;
+                        FROM factura JOIN cliente ON factura.idCliente = cliente.id;`;
 
     const facturas = await pool.query(query, [
-      startDate,
-      endDate,
+      //startDate,
+      //endDate,
       parseInt(limit),
       parseInt(offset),
     ]);
@@ -36,8 +37,8 @@ export const getFacturas = async (req, res) => {
     FROM Factura 
     WHERE fecha BETWEEN ? AND ?;
 `;
-    const totalResult = await pool.query(totalQuery, [startDate, endDate]);
-    const total = totalResult[0].total;
+    //const totalResult = await pool.query(totalQuery, [startDate, endDate]);
+    //const total = totalResult[0].total;
 
     if (facturas.length === 0) {
       return res.status(404).json({
@@ -49,9 +50,9 @@ export const getFacturas = async (req, res) => {
     //Este response nos devolverá el arreglo con todas las facturas segun las condiciones, el total de facturas, la página actual y el total de pags
     res.json({
       facturas,
-      total,
-      page: parseInt(page),
-      totalPages: Math.ceil(total / limit),
+      //total,
+      //page: parseInt(page),
+      //totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
     return res.status(500).json({
